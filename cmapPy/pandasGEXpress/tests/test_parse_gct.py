@@ -6,6 +6,7 @@ import numpy as np
 import cmapPy.pandasGEXpress.setup_GCToo_logger as setup_logger
 import cmapPy.pandasGEXpress.parse_gct as pg
 import cmapPy.pandasGEXpress.GCToo as GCToo
+from collections import OrderedDict
 
 
 FUNCTIONAL_TESTS_PATH = "functional_tests"
@@ -16,14 +17,14 @@ logger = logging.getLogger(setup_logger.LOGGER_NAME)
 class TestParseGct(unittest.TestCase):
     def test_read_version_and_dims(self):
         ### v1.3 case
-        version1 = "1.3"
+        version1 = b"1.3"
         version1_as_string = "GCT1.3"
-        dims1 = ["10", "15", "3", "4"]
+        dims1 = [b"10", b"15", b"3", b"4"]
         fname1 = "testing_testing1"
 
         f1 = open(fname1, "wb")
-        f1.write(("#" + version1 + "\n"))
-        f1.write((dims1[0] + "\t" + dims1[1] + "\t" + dims1[2] + "\t" + dims1[3] + "\n"))
+        f1.write((b"#" + version1 + b"\n"))
+        f1.write((dims1[0] + b"\t" + dims1[1] + b"\t" + dims1[2] + b"\t" + dims1[3] + b"\n"))
         f1.close()
 
         (actual_version, n_rows, n_cols, n_rhd, n_chd) = pg.read_version_and_dims(fname1)
@@ -35,14 +36,14 @@ class TestParseGct(unittest.TestCase):
         os.remove(fname1)
 
         ### v1.2 case
-        version2 = "1.2"
+        version2 = b"1.2"
         version2_as_string = "GCT1.2"
-        dims2 = ["10", "15"]
+        dims2 = [b"10", b"15"]
         fname2 = "testing_testing2"
 
         f2 = open(fname2, "wb")
-        f2.write(("#" + version2 + "\n"))
-        f2.write((dims2[0] + "\t" + dims2[1] + "\n"))
+        f2.write((b"#" + version2 + b"\n"))
+        f2.write((dims2[0] + b"\t" + dims2[1] + b"\n"))
         f2.close()
 
         (actual_version, n_rows, n_cols, n_rhd, n_chd) = pg.read_version_and_dims(fname2)
@@ -251,12 +252,16 @@ class TestParseGct(unittest.TestCase):
         my_rids = ["218597_s_at", "214404_x_at", "209253_at"]
         my_rids_order_in_gct = ["218597_s_at", "209253_at", "214404_x_at"]
         my_cidxs = [4, 0]
-        e_data_df = pd.DataFrame({"LJP005_A375_24H_X1_B19:A07": [11.04, 7.53, 6.01],
-                                  "LJP005_A375_24H_X1_B19:A03": [10.45, 8.14, 4.92]},
+        e_data_df = pd.DataFrame(OrderedDict([
+                                    ("LJP005_A375_24H_X1_B19:A03", [10.45, 8.14, 4.92]),
+                                    ("LJP005_A375_24H_X1_B19:A07", [11.04, 7.53, 6.01])
+                                 ]),
                                  dtype=np.float32)
         e_data_df.index = pd.Index(my_rids_order_in_gct)
-        e_col_meta_df = pd.DataFrame({"pert_iname": ["DMSO", "CP-724714"],
-                                      "pert_id": ["DMSO", "BRD-K76908866"]}, )
+        e_col_meta_df = pd.DataFrame(OrderedDict([
+                                        ("pert_id",  ["DMSO", "BRD-K76908866"]),
+                                        ("pert_iname", ["DMSO", "CP-724714"])
+                                     ]))
         e_col_meta_df.index = pd.Index(
             ["LJP005_A375_24H_X1_B19:A03", "LJP005_A375_24H_X1_B19:A07"])
 
