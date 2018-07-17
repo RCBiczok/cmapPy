@@ -1,6 +1,7 @@
 import logging
 import cmapPy.pandasGEXpress.setup_GCToo_logger as setup_logger
 import os
+import sys
 import numpy as np
 import pandas as pd
 import h5py
@@ -260,7 +261,9 @@ def parse_metadata_df(dim, meta_group, convert_neg_666):
 
     # need to temporarily make dtype of all values str so that to_numeric
     # works consistently with gct vs gctx parser.
-    meta_df = pd.DataFrame.from_dict(header_values).astype(str)
+    meta_df = pd.DataFrame.from_dict(header_values).apply(np.vectorize(
+        lambda x: str(x) if type(x).__name__ != "bytes" else x.decode(sys.getdefaultencoding())
+    ))
 
     # save the ids for later use in the index; we do not want to convert them to
     # numeric
