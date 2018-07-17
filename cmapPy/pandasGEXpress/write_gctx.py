@@ -161,8 +161,9 @@ def write_metadata(hdf5_out, dim, metadata_df, convert_back_to_neg_666, gzip_com
         logger.error("'dim' argument must be either 'row' or 'col'!")
 
     # write id field to expected node
-    hdf5_out.create_dataset(metadata_node_name + "/id", data=[str(x) for x in metadata_df.index], 
-        compression=gzip_compression)
+    hdf5_out.create_dataset(metadata_node_name + "/id",
+                            data=numpy.array(metadata_df.index).astype('S'),
+                            compression=gzip_compression)
 
     metadata_fields = list(metadata_df.columns.copy())
 
@@ -174,5 +175,5 @@ def write_metadata(hdf5_out, dim, metadata_df, convert_back_to_neg_666, gzip_com
     # write metadata columns to their own arrays
     for field in [entry for entry in metadata_fields if entry != "ind"]:
         hdf5_out.create_dataset(metadata_node_name + "/" + field,
-                                data=numpy.array(list(metadata_df.loc[:, field])), 
+                                data=numpy.array(list(metadata_df.loc[:, field])).astype('S'),
                                 compression=gzip_compression)
