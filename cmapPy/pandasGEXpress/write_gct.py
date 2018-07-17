@@ -32,7 +32,7 @@ def write(gctoo, out_fname, data_null="NaN", metadata_null="-666", filler_null="
     # Create handle for output file
     if not out_fname.endswith(".gct"):
         out_fname += ".gct"
-    f = open(out_fname, "wb")
+    f = open(out_fname, "w")
 
     # Write first two lines
     dims = [str(gctoo.data_df.shape[0]), str(gctoo.data_df.shape[1]),
